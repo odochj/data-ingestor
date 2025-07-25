@@ -32,36 +32,38 @@ Tags will include:
 - TV and Film
 - Music 
 
+```text
 root/
 ├── pipeline.py
 ├── writers/
 │   └── duckdb_writer.py
 ├── secrets/
-│   └── secret.py
+│   ├── secret.py
 │   └── manager.py
 ├── tags/
-│   └── tag.py
+│   ├── tag.py
 │   └── tag_registry.py
 ├── tests/
 │   └── e2e.py
-├─── sources/
-│   └── source.py
+├── sources/
+│   ├── source.py
 │   └── source_registry.py
 ├── readers/
-│   └── reader_factory.py
-│   └── csv_reader.py
-│   └── pdf_reader.py
+│   ├── reader_factory.py
+│   ├── csv_reader.py
+│   ├── pdf_reader.py
 │   └── api_reader.py
 ├── data/
-│   └── mock/
-│       └── ...
-│   └── receipts/
-│       └── ...
-│   └── transactions/
-│       └── ...
+│   ├── mock/
+│   │   └── ...
+│   ├── receipts/
+│   │   └── ...
+│   ├── transactions/
+│   │   └── ...
 │   └── workouts/
 │       └── ...
 └── test_output.duckdb
+```
 
 
 
