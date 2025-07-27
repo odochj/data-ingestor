@@ -57,10 +57,26 @@ class Source:
             source_column = self.column_mapping.get(canonical_name)
             if source_column and source_column in df.columns:
                 if expected_dtype == pl.Datetime:
-                    # Adjust format if needed (e.g., "%Y-%m-%d")
-                    df = df.with_columns(
-                        pl.col(source_column).str.strptime(pl.Datetime, "%Y-%m-%d").alias(source_column)
-                    )
+                    formats = ["%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y", "%Y/%m/%d", "%d-%m-%Y", "%Y.%m.%d"]
+                    parsed = False
+                    for fmt in formats:
+                        try:
+                            df = df.with_columns(
+                                pl.col(source_column).str.strptime(pl.Datetime, fmt, strict=False).alias(source_column)
+                            )
+                            parsed = True
+                            break
+                        except Exception:
+                            continue
+                    if not parsed:
+                        try:
+                            df = df.with_columns(
+                                pl.col(source_column).str.to_datetime().alias(source_column)
+                            )
+                        except Exception as e:
+                            import logging
+                            logging.error(f"Failed to parse '{source_column}' as datetime: {e}")
+                            raise ValueError(f"Could not convert column '{source_column}' to datetime with known formats.")
                 else:
                     df = df.with_columns(df[source_column].cast(expected_dtype))
         return df
