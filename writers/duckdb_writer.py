@@ -7,17 +7,18 @@ from datetime import datetime, timezone
 from writers.db_writer import DBWriter
 from secret_handling.secret import Secret, SecretType
 
-file_path = SecretType.FILE_PATH
+db_connection = SecretType.DB_CONNECTION
 
 class DuckDBWriter(DBWriter):
     secrets = Secret(
     keys = {
-        "DUCKDB_PATH": file_path
+        "DUCKDB_PATH": db_connection 
+
     }
     )
     def __init__(self, secrets: Secret):
         self.secrets = secrets
-        self.path = self.secrets.get_required_keys(SecretType.FILE_PATH)
+        self.path = self.secrets.get_required_keys(SecretType.DB_CONNECTION)
         
     def hash_schema(df: pl.DataFrame) -> str:
         schema_str = str([(name, str(dtype)) for name, dtype in df.schema.items()])

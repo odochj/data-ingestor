@@ -6,7 +6,7 @@ class SecretType(Enum):
     TOKEN = "token"
     USERNAME = "username"
     PASSWORD = "password"
-    SERVER = "server"
+    DB_CONNECTION = "db_connection"
     FILE_PATH = "file_path"
     URL = "url"
 
