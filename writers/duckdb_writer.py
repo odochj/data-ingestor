@@ -25,10 +25,20 @@ class DuckDBWriter(DBWriter):
         con = duckdb.connect(str(path))
         print(f"🔗 Connecting to DuckDB at {path}")
         print(f"    🔎 [{source_name}] Read {df.height} rows from source.")
+      
         df = df.with_columns([
-            pl.concat_str(df.columns, separator="|").hash().cast(str).alias("row_hash")
+            pl.concat_str(
+                [df[col].cast(pl.Utf8).fill_null("NULL") for col in df.columns],
+                separator="|"
+            ).map_elements(
+                lambda x: hashlib.md5(x.encode()).hexdigest(),
+                return_dtype=pl.Utf8,
+                skip_nulls=False
+            ).alias("row_hash")
         ])
+        print("    First 5 row_hashes:", df["row_hash"].to_list()[:5])
         df = df.unique(subset=["row_hash"])
+        print(f"    {df.__len__()} de-duplicated rows after hashing.")
         df = df.with_columns(pl.lit(datetime.now(timezone.utc)).alias("loaded_at"))
 
         # Hub table logic
