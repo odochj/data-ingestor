@@ -29,9 +29,10 @@ class DuckDBWriter(DBWriter):
             path = self.path
         con = duckdb.connect(str(path))
         df = df.with_columns([
-            pl.lit(datetime.now(timezone.utc)).alias("loaded_at"),
             pl.concat_str(df.columns, separator="|").hash().cast(str).alias("row_hash")
         ])
+        df = df.unique(subset=["row_hash"])
+        df = df.with_columns(pl.lit(datetime.now(timezone.utc)).alias("loaded_at"))
 
         # Hub table logic
         hub_table = f"hub_{tag}"
@@ -45,9 +46,8 @@ class DuckDBWriter(DBWriter):
         # Insert only new primary keys
         con.execute(f"""
             INSERT INTO {hub_table}
-            SELECT DISTINCT pk, loaded_at FROM df
-            EXCEPT
-            SELECT pk, created_at FROM {hub_table}
+            SELECT pk, loaded_at FROM df
+            WHERE pk NOT IN (SELECT pk FROM {hub_table})
         """)
 
         # Satellite table logic
