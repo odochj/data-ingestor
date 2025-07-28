@@ -9,7 +9,7 @@ class ReaderFactory:
     def get_reader(source: Source):
         secrets = source.secrets
         if source.source_type == SourceType.CSV:
-            return csv_reader(secrets.get_required_keys(path))
+            return csv_reader(secrets.get_required_key(path))
 
         else:
             raise ValueError(f"Unsupported source type: {source.source_type}")

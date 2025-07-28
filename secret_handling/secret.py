@@ -14,7 +14,7 @@ class SecretType(Enum):
 class Secret:
     keys: dict[str, SecretType] 
 
-    def get_required_keys(self, type: SecretType) -> list[str]:
+    def get_required_key(self, type: SecretType) -> str:
         manager = SecretManager()
         for k, v in self.keys.items():
             if v == type:

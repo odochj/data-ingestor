@@ -10,23 +10,18 @@ from secret_handling.secret import Secret, SecretType
 db_connection = SecretType.DB_CONNECTION
 
 class DuckDBWriter(DBWriter):
-    secrets = Secret(
-    keys = {
-        "DUCKDB_PATH": db_connection 
-
-    }
-    )
+    secrets: Secret | None = None
+    
     def __init__(self, secrets: Secret):
         self.secrets = secrets
-        self.path = self.secrets.get_required_keys(SecretType.DB_CONNECTION)
+        self.path = self.secrets.get_required_key(SecretType.DB_CONNECTION)
         
     def hash_schema(df: pl.DataFrame) -> str:
         schema_str = str([(name, str(dtype)) for name, dtype in df.schema.items()])
         return hashlib.md5(schema_str.encode()).hexdigest()
 
-    def write_scd2(self,df: pl.DataFrame, tag: str, source_name: str, path: Path = None ):
-        if path is None:
-            path = self.path
+    def write_scd2(self,df: pl.DataFrame, tag: str, source_name: str ):
+        path = self.path
         con = duckdb.connect(str(path))
         df = df.with_columns([
             pl.concat_str(df.columns, separator="|").hash().cast(str).alias("row_hash")
