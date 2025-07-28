@@ -2,11 +2,12 @@ from sources.source_registry import SOURCES
 from sources.source import Source
 from readers.reader_factory import ReaderFactory
 from writers.duckdb_writer import DuckDBWriter 
-from secret_handling.manager import SecretManager
+from secret_handling.secret import Secret, SecretType
 
 def run_pipeline(source: Source):
     print(f"\nProcessing source: {source.name}")
-    db = DuckDBWriter(source.secrets)
+    duckdb_secrets = Secret(keys={"DUCKDB_PATH": SecretType.DB_CONNECTION})
+    db = DuckDBWriter(duckdb_secrets)
 
     # 1. Resolve secrets
     source.resolve_secrets()
