@@ -24,18 +24,18 @@ class Tag:
             source_column = column_mapping.get(canonical_name)
 
             if not source_column:
-                raise ValueError(f"Missing mapping for required tag column: '{canonical_name}'")
+                raise ValueError(f"    ❌ Missing mapping for required tag column: '{canonical_name}'")
 
             if source_column not in df.columns:
-                raise ValueError(f"Missing required source column: '{source_column}'")
+                raise ValueError(f"    ❌ Missing required source column: '{source_column}'")
 
             actual_dtype = df[source_column].dtype
             if actual_dtype != expected_dtype:
                 raise TypeError(
-                    f"Column '{source_column}' expected {expected_dtype}, got {actual_dtype}"
+                    f"    ⚠️ Column '{source_column}' expected {expected_dtype}, got {actual_dtype}"
                 )
             if actual_dtype == expected_dtype:
-                print(f"{source_column} is a valid {canonical_name}")
+                print(f"    ✅ {source_column} is a valid {canonical_name}")
 
             else:
                 pass

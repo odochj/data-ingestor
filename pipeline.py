@@ -5,7 +5,7 @@ from writers.duckdb_writer import DuckDBWriter
 from secret_handling.secret import Secret, SecretType
 
 def run_pipeline(source: Source):
-    print(f"\nProcessing source: {source.name}")
+    print(f"\n🟠 Processing source: {source.name}, User: {source.user.name}")
     duckdb_secrets = Secret(keys={"DUCKDB_PATH": SecretType.DB_CONNECTION})
     db = DuckDBWriter(duckdb_secrets)
 
@@ -14,9 +14,10 @@ def run_pipeline(source: Source):
 
     # 2. Read data
     dfs = ReaderFactory.get_reader(source)
-    print(f"Sample data shape: {dfs[0].shape}")
+    print(f"🔎 Source data shape: {dfs[0].shape}")
 
     # 3. Map Columns 
+    print("👀 validating source columns...")
     source.column_mapping = source.resolve_column_mapping()
     
     for df in dfs:
@@ -39,7 +40,7 @@ def run_pipeline(source: Source):
             tag = source.tag.name
         )
 
-        print(f"Written to table: {source.tag.name}")
+        print(f"🟢 Successfully written to table: {source.tag.name}")
 
 if __name__ == "__main__":
     for source in SOURCES:

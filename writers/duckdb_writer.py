@@ -11,7 +11,7 @@ db_connection = SecretType.DB_CONNECTION
 
 class DuckDBWriter(DBWriter):
     secrets: Secret | None = None
-    
+
     def __init__(self, secrets: Secret):
         self.secrets = secrets
         self.path = self.secrets.get_required_key(SecretType.DB_CONNECTION)
@@ -23,6 +23,8 @@ class DuckDBWriter(DBWriter):
     def write_scd2(self,df: pl.DataFrame, tag: str, source_name: str ):
         path = self.path
         con = duckdb.connect(str(path))
+        print(f"🔗 Connecting to DuckDB at {path}")
+        print(f"    🔎 [{source_name}] Read {df.height} rows from source.")
         df = df.with_columns([
             pl.concat_str(df.columns, separator="|").hash().cast(str).alias("row_hash")
         ])
@@ -54,6 +56,7 @@ class DuckDBWriter(DBWriter):
             SELECT * FROM df WHERE false
         """)
 
+        before_count = con.execute(f"SELECT COUNT(*) FROM {satellite_table}").fetchone()[0]
         con.execute(f"""
             INSERT INTO {satellite_table}
             SELECT * FROM df
@@ -61,5 +64,9 @@ class DuckDBWriter(DBWriter):
             SELECT row_hash FROM {satellite_table}
             )
         """)
+
+        after_count = con.execute(f"SELECT COUNT(*) FROM {satellite_table}").fetchone()[0]
+        written_count = after_count - before_count
+        print(f"    📝 [{source_name}] Wrote {written_count} new rows to {satellite_table}.")
 
         con.close()
