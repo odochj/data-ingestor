@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict
 import polars as pl
+import hashlib
 
 
 @dataclass
@@ -41,7 +42,13 @@ class Tag:
                 pass
 
     def generate_primary_key(self, df: pl.DataFrame, key_columns: list[str]) -> pl.DataFrame:
+        print("🔑 Generating primary key...")
 
-        return df.with_columns([
-            pl.concat_str(key_columns, separator="|").hash().cast(str).alias("pk")
+        df = df.with_columns([
+            pl.concat_str(
+                [df[col].cast(pl.Utf8).fill_null("NULL") for col in key_columns],
+                separator="|"
+            ).map_elements(lambda x: hashlib.md5(x.encode()).hexdigest(), return_dtype=pl.Utf8).alias("pk")
         ])
+        print("    🔸 Example primary key:", df["pk"].to_list()[:1])
+        return df

@@ -36,8 +36,7 @@ def run_pipeline(source: Source):
         # 7. Write to DuckDB
         db.write_scd2(
             df = df,
-            source_name = source.name,
-            tag = source.tag.name
+            source = source
         )
 
         print(f"🟢 Successfully written to table: {source.tag.name}")
