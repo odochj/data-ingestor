@@ -6,6 +6,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 from writers.db_writer import DBWriter
 from secret_handling.secret import Secret, SecretType
+from sources.source import Source
 
 db_connection = SecretType.DB_CONNECTION
 
@@ -20,8 +21,12 @@ class DuckDBWriter(DBWriter):
         schema_str = str([(name, str(dtype)) for name, dtype in df.schema.items()])
         return hashlib.md5(schema_str.encode()).hexdigest()
 
-    def write_scd2(self,df: pl.DataFrame, tag: str, source_name: str ):
+    def write_scd2(self, df: pl.DataFrame, source: Source):
+        source_name = source.name
+        tag = source.tag.name
         path = self.path
+        user = source.user.value
+
         con = duckdb.connect(str(path))
         print(f"🔗 Connecting to DuckDB at {path}")
         print(f"    🔎 [{source_name}] Read {df.height} rows from source.")
@@ -36,10 +41,11 @@ class DuckDBWriter(DBWriter):
                 skip_nulls=False
             ).alias("row_hash")
         ])
-        print("    First 5 row_hashes:", df["row_hash"].to_list()[:5])
+        print("    🔸 Example row_hash:", df["row_hash"].to_list()[:1])
         df = df.unique(subset=["row_hash"])
-        print(f"    {df.__len__()} de-duplicated rows after hashing.")
+        print(f"    ℹ️  {df.__len__()} de-duplicated rows after hashing")
         df = df.with_columns(pl.lit(datetime.now(timezone.utc)).alias("loaded_at"))
+        pks_only = df.select(["pk", "loaded_at"]).unique(subset=["pk"])
 
         # Hub table logic
         hub_table = f"hub_{tag}"
@@ -53,13 +59,13 @@ class DuckDBWriter(DBWriter):
         # Insert only new primary keys
         con.execute(f"""
             INSERT INTO {hub_table}
-            SELECT pk, loaded_at FROM df
+            SELECT pk, loaded_at FROM pks_only
             WHERE pk NOT IN (SELECT pk FROM {hub_table})
         """)
 
         # Satellite table logic
         schema_id = DuckDBWriter.hash_schema(df)
-        satellite_table = f"sat_{tag}_{source_name}_{schema_id}"
+        satellite_table = f"sat_{tag}_{source_name}_{user}_{schema_id}"
 
         con.execute(f"""
             CREATE TABLE IF NOT EXISTS {satellite_table} AS
@@ -77,6 +83,6 @@ class DuckDBWriter(DBWriter):
 
         after_count = con.execute(f"SELECT COUNT(*) FROM {satellite_table}").fetchone()[0]
         written_count = after_count - before_count
-        print(f"    📝 [{source_name}] Wrote {written_count} new rows to {satellite_table}.")
+        print(f"    📝 {written_count} new rows to {satellite_table} from {source_name}")
 
         con.close()
