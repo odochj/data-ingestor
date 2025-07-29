@@ -25,7 +25,15 @@ class DuckDBWriter(DBWriter):
         source_name = source.name
         tag = source.tag.name
         path = self.path
-        user = source.user.value
+        
+        if source.user:
+            user = source.user.value
+
+            df = df.with_columns(
+                pl.lit(user).cast(pl.Utf8).fill_null("NULL").alias("user"),
+            )
+        else:
+            pass
 
         con = duckdb.connect(str(path))
         print(f"🔗 Connecting to DuckDB at {path}")
