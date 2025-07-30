@@ -3,8 +3,10 @@ from sources.source import Source
 from readers.reader_factory import ReaderFactory
 from writers.duckdb_writer import DuckDBWriter 
 from secret_handling.secret import Secret, SecretType
+from dotenv import load_dotenv
 
 def run_pipeline(source: Source):
+    load_dotenv()  
     print(f"\n🟠 Processing source: {source.name}, User: {source.user.name}")
     duckdb_secrets = Secret(keys={"DUCKDB_PATH": SecretType.DB_CONNECTION})
     db = DuckDBWriter(duckdb_secrets)
