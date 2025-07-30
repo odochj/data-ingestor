@@ -1,0 +1,4 @@
+Number,Date,Account,Amount,Subcategory,Memo
+1001,2024-06-01,Checking,-120.50,Utilities,Electricity bill
+1002,2024-06-02,Credit Card,-45.00,Entertainment,Movie night
+1003,2024-06-03,Savings,500.00,Income,Salary deposit
