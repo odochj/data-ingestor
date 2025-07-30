@@ -18,6 +18,9 @@ class Secret:
         manager = SecretManager()
         for k, v in self.keys.items():
             if v == type:
-                return manager.resolve(key=k)
-        return None
+                val = manager.resolve(key=k)
+                if not val:
+                    raise ValueError(f"Environment variable '{k}' for secret type '{type}' is not set.")
+                return val
+        raise ValueError(f"No secret key found for type '{type}'")
     
