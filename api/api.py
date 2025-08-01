@@ -17,9 +17,10 @@ def list_sources():
 def get_metadata(source_name: str):
     for s in SOURCES:
         if s.name == source_name:
+            s.column_mapping = s.resolve_column_mapping()
             return {
                 "Name": s.name,
-                "User": s.user.name,
+                "Users": [s.user.name for s in SOURCES if s.name == source_name],
                 "Tag": s.tag.name,
                 "Column_Mapping": s.column_mapping,
             }
