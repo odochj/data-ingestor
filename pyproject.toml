@@ -18,6 +18,8 @@ dependencies = [
     "pytz==2025.2",
     "six==1.17.0",
     "tzdata==2025.2",
+    "fastapi",
+    "uvicorn"
 
 ]
 [tool.pytest.ini_options]
