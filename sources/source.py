@@ -5,7 +5,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from enum import Enum
 from tags.tag import Tag
+from sources.datetime_helper import try_parse_datetime_column
 import polars as pl
+import logging
 
 class User(Enum):
     JAMES = "James"
@@ -51,34 +53,24 @@ class Source:
         """
         Cast key columns to types defined in tag.mandatory_columns,
         using the column_mapping to map canonical names to source columns.
-        Handles datetime columns explicitly.
         """
         for canonical_name, expected_dtype in self.tag.mandatory_columns.items():
             source_column = self.column_mapping.get(canonical_name)
-            if source_column and source_column in df.columns:
+            if not source_column or source_column not in df.columns:
+                continue
+
+            try:
                 if expected_dtype == pl.Datetime:
-                    formats = ["%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y", "%Y/%m/%d", "%d-%m-%Y", "%Y.%m.%d"]
-                    parsed = False
-                    for fmt in formats:
-                        try:
-                            df = df.with_columns(
-                                pl.col(source_column).str.strptime(pl.Datetime, fmt, strict=False).alias(source_column)
-                            )
-                            parsed = True
-                            break
-                        except Exception:
-                            continue
-                    if not parsed:
-                        try:
-                            df = df.with_columns(
-                                pl.col(source_column).str.to_datetime().alias(source_column)
-                            )
-                        except Exception as e:
-                            import logging
-                            logging.error(f"Failed to parse '{source_column}' as datetime: {e}")
-                            raise ValueError(f"Could not convert column '{source_column}' to datetime with known formats.")
+                    parsed_column = try_parse_datetime_column(df, source_column)
+                    df = df.with_columns(parsed_column)
                 else:
-                    df = df.with_columns(df[source_column].cast(expected_dtype))
+                    df = df.with_columns(
+                        pl.col(source_column).cast(expected_dtype)
+                    )
+            except Exception as e:
+                print(f"Failed to cast '{source_column}' to {expected_dtype}: {e}")
+                raise
+
         return df
 
     def validate(self, df: pl.DataFrame) -> None:
