@@ -18,11 +18,11 @@ def get_metadata(source_name: str):
     for s in SOURCES:
         if s.name == source_name:
             s.column_mapping = s.resolve_column_mapping()
-            return {
-                "Name": s.name,
-                "Users": [s.user.name for s in SOURCES if s.name == source_name],
-                "Tag": s.tag.name,
-                "Column_Mapping": s.column_mapping,
+            return { 
+                "name": s.name,
+                "users": [s.user.name for s in SOURCES if s.name == source_name],
+                "tag": s.tag.name,
+                "column_mapping": s.column_mapping,
             }
     raise HTTPException(status_code=404, detail=f"Source '{source_name}' not found.")
 
@@ -35,6 +35,7 @@ def get_tags():
 def get_users():
     return list(set(s.user.name for s in SOURCES))
 
+#TODO: Handle 'Unprocessable content' error. 
 @app.post("/run")
 def run_ingestion(sources: Optional[List[str]] = None):
     from pipeline import run_pipeline
