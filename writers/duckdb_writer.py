@@ -94,3 +94,7 @@ class DuckDBWriter(DBWriter):
         print(f"    📝 {written_count} new rows to {satellite_table} from {source_name}")
 
         con.close()
+        source.hub = hub_table
+        print(f"    💾 {hub_table} saved to {source_name}")
+        source.satellites.add(satellite_table)
+        print(f"    💾 {satellite_table} saved to {source_name}")

@@ -1,13 +1,12 @@
 from typing import Optional
 from secret_handling.secret import Secret
 from secret_handling.manager import SecretManager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from enum import Enum
 from tags.tag import Tag
 from sources.datetime_helper import try_parse_datetime_column
 import polars as pl
-import logging
 
 class User(Enum):
     JAMES = "James"
@@ -26,9 +25,12 @@ class Source:
     user: User
     source_type: SourceType
     tag: Tag
-    key_columns: list[str] = None
-    column_mapping: dict[str, str]  = None# {canonical_name: source_column_name}
-    secrets: Optional[Secret] = None
+    key_columns: list[str]
+    secrets: Secret
+    #generated at runtime:
+    satellites: set[str] = field(default_factory=set)
+    column_mapping: dict[str, str]  = field(default_factory=dict) # {canonical_name: source_column_name}
+    hub: Optional[str] = None
 
     def resolve_secrets(self) -> None:
         manager = SecretManager()
