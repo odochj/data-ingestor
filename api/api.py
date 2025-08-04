@@ -11,7 +11,7 @@ def root():
 
 @app.get("/sources")
 def list_sources():
-    return [{"name": s.name, "tag": s.tag.name} for s in SOURCES]
+    return [{"name": s.name} for s in SOURCES]
 
 @app.get("/sources/{source_name}")
 def get_metadata(source_name: str):
@@ -23,6 +23,8 @@ def get_metadata(source_name: str):
                 "users": [s.user.name for s in SOURCES if s.name == source_name],
                 "tag": s.tag.name,
                 "column_mapping": s.column_mapping,
+                "hub": s.hub,
+                "satellites": s.satellites
             }
     raise HTTPException(status_code=404, detail=f"Source '{source_name}' not found.")
 
