@@ -1,4 +1,3 @@
-# writers/duckdb_writer.py
 import duckdb
 import hashlib
 import polars as pl
@@ -26,14 +25,18 @@ class DuckDBWriter(DBWriter):
         tag = source.tag.name
         path = self.path
         
+        #TODO: not very nice. make better later (could this come earlier?)
         if source.user:
             user = source.user.value
 
             df = df.with_columns(
                 pl.lit(user).cast(pl.Utf8).fill_null("NULL").alias("user"),
+                pl.lit(source_name).cast(pl.Utf8).fill_null("NULL").alias("source"),
             )
         else:
-            pass
+            df = df.with_columns(
+                pl.lit(source_name).cast(pl.Utf8).fill_null("NULL").alias("source"),
+            )
 
         con = duckdb.connect(str(path))
         print(f"🔗 Connecting to DuckDB at {path}")

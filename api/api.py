@@ -23,8 +23,9 @@ def get_metadata(source_name: str):
                 "users": [s.user.name for s in SOURCES if s.name == source_name],
                 "tag": s.tag.name,
                 "column_mapping": s.column_mapping,
+                "dimensions":s.dimensions,
                 "hub": s.hub,
-                "satellites": s.satellites
+                "satellites": s.satellites,
             }
     raise HTTPException(status_code=404, detail=f"Source '{source_name}' not found.")
 
