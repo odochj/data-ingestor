@@ -25,7 +25,8 @@ class Source:
     user: User
     source_type: SourceType
     tag: Tag
-    key_columns: list[str]
+    key_columns: list[str] 
+    dimensions: dict[str, str] # {canonical_name: source_column_name}
     secrets: Secret
     #generated at runtime:
     satellites: set[str] = field(default_factory=set)
