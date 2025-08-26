@@ -11,7 +11,7 @@ def root():
 
 @app.get("/sources")
 def list_sources():
-    return [{"name": s.name} for s in SOURCES]
+    return {"sources": [s.name for s in SOURCES]}
 
 @app.get("/sources/{source_name}")
 def get_metadata(source_name: str):
