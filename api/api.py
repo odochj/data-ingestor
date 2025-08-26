@@ -18,25 +18,27 @@ def get_metadata(source_name: str):
     for s in SOURCES:
         if s.name == source_name:
             s.column_mapping = s.resolve_column_mapping()
-            return { 
-                "name": s.name,
-                "users": [s.user.name for s in SOURCES if s.name == source_name],
-                "tag": s.tag.name,
-                "column_mapping": s.column_mapping,
-                "dimensions":s.dimensions,
-                "hub": s.hub,
-                "satellites": s.satellites,
+            return {
+                "source":{ 
+                    "name": s.name,
+                    "users": [s.user.name for s in SOURCES if s.name == source_name],
+                    "tag": s.tag.name,
+                    "column_mapping": s.column_mapping,
+                    "dimensions":s.dimensions,
+                    "hub": s.hub,
+                    "satellites": s.satellites,
+                }
             }
     raise HTTPException(status_code=404, detail=f"Source '{source_name}' not found.")
 
 #TODO: create list in tag_registry.py
 @app.get("/tags")
 def get_tags():
-    return list(set(s.tag.name for s in SOURCES))
+    return {"tags": list(set(s.tag.name for s in SOURCES))}
 
 @app.get("/users")
 def get_users():
-    return list(set(s.user.name for s in SOURCES))
+    return {"users": list(set(s.user.name for s in SOURCES))}
 
 #TODO: Handle 'Unprocessable content' error. 
 @app.post("/run")
