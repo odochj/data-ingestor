@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from typing import List, Optional
 from sources.source_registry import SOURCES  # populated at runtime
+from api.response_models import SourcesResponse
 
 app = FastAPI(title="Data Ingestor API")
 
@@ -9,7 +10,7 @@ app = FastAPI(title="Data Ingestor API")
 def root():
     return {"message": "Data Ingestor API running."}
 
-@app.get("/sources")
+@app.get("/sources", response_model=SourcesResponse)
 def list_sources():
     return {"sources": [s.name for s in SOURCES]}
 
