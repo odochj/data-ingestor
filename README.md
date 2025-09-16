@@ -6,7 +6,7 @@
 
 A previous iteration was an ETL tool, pre-empting transformations via POLARS using knowledge of specific source formats in order to load data in an analytics-ready state
 
-In order to scale this to more formats and use cases, this version will pivot to ELT - with this tool focused solely on Extraction and Loading, with minimal Transformation pre-load.
+In order to scale this to more formats and use cases, this version will pivot to ELT - with this tool focused solely on Extraction and Loading, with the majority of the transformations being handled by the [Data Transformer](https://github.com/odochj/data-transformer)
 
 ## Overview
 
