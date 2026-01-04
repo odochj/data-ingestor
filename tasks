@@ -28,6 +28,9 @@ case "$COMMAND" in
         uv run uvicorn api.api:app --reload
         ;;  
 
+    ingest-data)
+        uv run python3 pipeline/gp.py
+        ;;
     *)
         echo "❌ Unknown command: $COMMAND"
         echo "Usage: ./tasks [format|lint|test|typecheck|coverage|all]"
