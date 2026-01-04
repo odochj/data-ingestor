@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -e  # Exit on error
+set -u  # Error on unset variables
+
+COMMAND=$1
+shift || true  # remove command from args
+
+case "$COMMAND" in
+    init)
+        echo "⚙️  Initializing development environment..."
+        # Create venv with uv if it doesn't exist
+        if [ ! -d ".venv" ]; then
+        uv venv
+        fi
+        source .venv/bin/activate
+
+        # Install project dependencies (idempotent)
+        uv pip install -e .
+
+        # Install pre-commit hooks and type stubs
+        uv run pre-commit install
+        uv run mypy --install-types 
+
+        ;;
+    
+    run-api)
+        uv run uvicorn api.api:app --reload
+        ;;  
+
+    *)
+        echo "❌ Unknown command: $COMMAND"
+        echo "Usage: ./tasks [format|lint|test|typecheck|coverage|all]"
+        exit 1
+        ;;
+esac

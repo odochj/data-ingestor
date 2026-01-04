@@ -10,6 +10,11 @@ app = FastAPI(title="Data Ingestor API")
 def root():
     return {"message": "Data Ingestor API running."}
 
+#"fact" in the dimensional modelling sense
+@app.get("/facts")
+def get_facts():
+    return {"facts": { s.hub: set(s.name) for s in SOURCES }}
+
 @app.get("/sources", response_model=SourcesResponse)
 def list_sources():
     return {"sources": [s.name for s in SOURCES]}
@@ -27,15 +32,17 @@ def get_metadata(source_name: str):
                     "column_mapping": s.column_mapping,
                     "dimensions":s.dimensions,
                     "hub": s.hub,
-                    "satellites": s.satellites,
+                    "satellites": (s.satellites, s.column_mapping)
                 }
             }
+        
     raise HTTPException(status_code=404, detail=f"Source '{source_name}' not found.")
 
 #TODO: create list in tag_registry.py
 @app.get("/tags")
 def get_tags():
     return {"tags": list(set(s.tag.name for s in SOURCES))}
+
 
 @app.get("/users")
 def get_users():

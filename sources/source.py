@@ -29,7 +29,7 @@ class Source:
     dimensions: dict[str, str] # {canonical_name: source_column_name}
     secrets: Secret
     #generated at runtime:
-    satellites: set[str] = field(default_factory=set)
+    satellites: frozenset[str] = field(default_factory=set)
     column_mapping: dict[str, str]  = field(default_factory=dict) # {canonical_name: source_column_name}
     hub: Optional[str] = None
 
