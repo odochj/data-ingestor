@@ -23,4 +23,6 @@ dependencies = [
 
 ]
 [tool.pytest.ini_options]
-pythonpath = [ "." ]
+pythonpath = ["."]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py", "e2e.py"]
