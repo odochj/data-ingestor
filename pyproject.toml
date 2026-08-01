@@ -19,7 +19,8 @@ dependencies = [
     "six==1.17.0",
     "tzdata==2025.2",
     "fastapi",
-    "uvicorn"
+    "uvicorn",
+    "psycopg2-binary>=2.9.7"
 
 ]
 [tool.pytest.ini_options]
