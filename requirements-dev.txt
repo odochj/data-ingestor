@@ -1,4 +1,0 @@
-# Development requirements for running tests locally
-pytest
-requests
-httpx

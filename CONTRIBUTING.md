@@ -2,12 +2,9 @@
 
 ## Running tests
 
-Run the test suite from the repository root:
+Run the test suite from the repository root with uv:
 
-    pytest -q
-
-Install local development dependencies first:
-
-    pip install -r requirements-dev.txt
+    uv sync
+    uv run pytest -q
 
 Unit tests should run without external services. Integration tests may require the local services described in the project README.
